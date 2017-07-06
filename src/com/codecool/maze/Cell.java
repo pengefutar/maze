@@ -1,25 +1,18 @@
 package com.codecool.maze;
 
-public class SearchTile {
+public class Cell {
 
     private int[] coordinates;
     private int cost;
     private int estimatedCost;
     private int score;
-    private SearchTile parent;
+    private Cell parent;
 
-    public SearchTile(int[] coordinates){
+    public Cell(int[] coordinates){
         this.coordinates = coordinates;
     }
 
-    public SearchTile(int[] coordinates, int cost, int estimatedCost){
-        this.coordinates = coordinates;
-        this.cost = cost;
-        this.estimatedCost = estimatedCost;
-        score = cost + estimatedCost;
-    }
-
-    public SearchTile(int[] coordinates, int cost, int estimatedCost, SearchTile parent) {
+    public Cell(int[] coordinates, int cost, int estimatedCost, Cell parent) {
         this.coordinates = coordinates;
         this.cost = cost;
         this.estimatedCost = estimatedCost;
@@ -59,11 +52,11 @@ public class SearchTile {
         this.score = score;
     }
 
-    public SearchTile getParent() {
+    public Cell getParent() {
         return parent;
     }
 
-    public void setParent(SearchTile parent) {
+    public void setParent(Cell parent) {
         this.parent = parent;
     }
 

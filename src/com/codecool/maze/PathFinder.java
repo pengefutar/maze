@@ -3,25 +3,29 @@ package com.codecool.maze;
 import java.util.ArrayList;
 import java.util.Arrays;
 
-public class MazeSearch {
+public class PathFinder {
 
-    int[][] maze;
-    SearchTile startTile;
-    SearchTile goalTile;
-    ArrayList<SearchTile> openList;
-    ArrayList<SearchTile> closedList;
+    private int[][] maze;
+    private Cell startTile;
+    private Cell goalTile;
+    private ArrayList<Cell> openList;
+    private ArrayList<Cell> closedList;
 
-    public MazeSearch(int[][] maze, int[] startCoordinates, int[] goalCoordinates) {
+    public PathFinder(int[][] maze, int[] startCoordinates, int[] goalCoordinates) {
         this.maze = maze;
-        startTile = new SearchTile(startCoordinates);
-        goalTile = new SearchTile(goalCoordinates);
+        startTile = new Cell(startCoordinates);
+        goalTile = new Cell(goalCoordinates);
         openList = new ArrayList<>();
         closedList = new ArrayList<>();
         startTile.setScore(0);
         openList.add(startTile);
     }
 
-    private void removeTileFromList(ArrayList<SearchTile> list, int[] tileCoordinatesToRemove){
+    public int[][] getMaze() {
+        return maze;
+    }
+
+    private void removeTileFromList(ArrayList<Cell> list, int[] tileCoordinatesToRemove){
         for(int x = 0; x < list.size(); x++){
             if(list.get(x).getCoordinates() == tileCoordinatesToRemove){
                 list.remove(x);
@@ -29,8 +33,8 @@ public class MazeSearch {
         }
     }
 
-    private boolean isTileInList(ArrayList<SearchTile> list, int[] tileCoordinatesToSearch){
-        for(SearchTile tile : list){
+    private boolean isTileInList(ArrayList<Cell> list, int[] tileCoordinatesToSearch){
+        for(Cell tile : list){
             if(Arrays.equals(tile.getCoordinates(), tileCoordinatesToSearch)){
                 return true;
             }
@@ -38,39 +42,24 @@ public class MazeSearch {
         return false;
     }
 
-    private boolean isOpenListEmpty(){
-        if(openList.size() == 0){
-            return true;
+    private Cell getTileFromList(ArrayList<Cell> list, int[] tileCoordinatesToSearch){
+        for(Cell tile : list){
+            if(Arrays.equals(tile.getCoordinates(), tileCoordinatesToSearch)){
+                return tile;
+            }
         }
-        else{
-            return false;
-        }
+        return null;
     }
 
     private int getEstimatedCost(int[] fromCoordinates, int[] toCoordinates){
-        int rowCost;
-        int colCost;
-
-        if(fromCoordinates[0] < toCoordinates[0]){
-            rowCost = toCoordinates[0] - fromCoordinates[0];
-        }else{
-            rowCost = fromCoordinates[0] - toCoordinates[0];
-        }
-
-        if(fromCoordinates[1] < toCoordinates[1]){
-            colCost = toCoordinates[1] - fromCoordinates[1];
-        }else{
-            colCost = fromCoordinates[1] - toCoordinates[1];
-        }
-
-        return rowCost + colCost;
+        return Math.abs(toCoordinates[0] - fromCoordinates[0]) + Math.abs(toCoordinates[1] - fromCoordinates[1]);
     }
 
-    private SearchTile getTileFromOpenListWithLowestScore(){
+    private Cell getTileFromOpenListWithLowestScore(){
 
-        SearchTile returnTile = new SearchTile(new int[]{});
+        Cell returnTile = new Cell(new int[]{});
         int score = openList.get(0).getScore();
-        for(SearchTile tile : openList){
+        for(Cell tile : openList){
             if(tile.getScore() <= score){
                 score = tile.getScore();
                 returnTile = tile;
@@ -79,15 +68,15 @@ public class MazeSearch {
         return returnTile;
     }
 
-    private ArrayList<SearchTile> getListOfValidNeighbors(SearchTile tile){
-        ArrayList<SearchTile> returnList = new ArrayList<>();
+    private ArrayList<Cell> getListOfValidNeighbors(Cell tile){
+        ArrayList<Cell> returnList = new ArrayList<>();
         int row = tile.getCoordinates()[0];
         int col = tile.getCoordinates()[1];
 
         try{
             if(maze[row-1][col] == 0){
                 int [] coordinates = new int[]{row-1, col};
-                SearchTile tileToAdd = new SearchTile(coordinates, tile.getCost()+1,
+                Cell tileToAdd = new Cell(coordinates, tile.getCost()+1,
                         getEstimatedCost(coordinates, goalTile.getCoordinates()), tile);
                 returnList.add(tileToAdd);
             }
@@ -96,7 +85,7 @@ public class MazeSearch {
         try{
             if(maze[row+1][col] == 0){
                 int [] coordinates = new int[]{row+1, col};
-                SearchTile tileToAdd = new SearchTile(coordinates, tile.getCost()+1,
+                Cell tileToAdd = new Cell(coordinates, tile.getCost()+1,
                         getEstimatedCost(coordinates, goalTile.getCoordinates()), tile);
                 returnList.add(tileToAdd);
             }
@@ -105,7 +94,7 @@ public class MazeSearch {
         try {
             if (maze[row][col - 1] == 0) {
                 int[] coordinates = new int[]{row, col-1};
-                SearchTile tileToAdd = new SearchTile(coordinates, tile.getCost() + 1,
+                Cell tileToAdd = new Cell(coordinates, tile.getCost() + 1,
                         getEstimatedCost(coordinates, goalTile.getCoordinates()), tile);
                 returnList.add(tileToAdd);
             }
@@ -114,7 +103,7 @@ public class MazeSearch {
         try {
             if (maze[row][col + 1] == 0) {
                 int[] coordinates = new int[]{row, col+1};
-                SearchTile tileToAdd = new SearchTile(coordinates, tile.getCost() + 1,
+                Cell tileToAdd = new Cell(coordinates, tile.getCost() + 1,
                         getEstimatedCost(coordinates, goalTile.getCoordinates()), tile);
                 returnList.add(tileToAdd);
             }
@@ -125,8 +114,8 @@ public class MazeSearch {
     }
 
     private void generateShortestRoute(){
-        while(!isOpenListEmpty()){
-            SearchTile currentTile = getTileFromOpenListWithLowestScore();
+        while(!openList.isEmpty()){
+            Cell currentTile = getTileFromOpenListWithLowestScore();
             closedList.add(currentTile);
             removeTileFromList(openList, currentTile.getCoordinates());
 
@@ -134,9 +123,9 @@ public class MazeSearch {
                 break;
             }
 
-            ArrayList<SearchTile> validNeighbors = getListOfValidNeighbors(currentTile);
+            ArrayList<Cell> validNeighbors = getListOfValidNeighbors(currentTile);
 
-            for(SearchTile neighbor : validNeighbors){
+            for(Cell neighbor : validNeighbors){
                 if(isTileInList(closedList, neighbor.getCoordinates())){
                     continue;
                 }
@@ -158,14 +147,19 @@ public class MazeSearch {
         }
     }
 
-    public ArrayList<SearchTile> getShortestPath(){
+    public int[][] getShortestPathCoordinates(){
         generateShortestRoute();
-        ArrayList<SearchTile> returnList = new ArrayList<>();
-        returnList.add(closedList.get(closedList.size()-1));
-        SearchTile lastListMember = returnList.get(returnList.size()-1);
+        int[][] returnList = new int[closedList.size()][2];
+        int[] goalCoordinates = closedList.get(closedList.size()-1).getCoordinates();
+        int counter = 0;
+        returnList[0][0] = goalCoordinates[0];
+        returnList[0][1] = goalCoordinates[1];
+        Cell lastListMember = getTileFromList(closedList, returnList[counter]);
+        counter++;
         while(lastListMember.getParent() != null){
-            returnList.add(lastListMember.getParent());
-            lastListMember = returnList.get(returnList.size()-1);
+            returnList[counter] = (lastListMember.getParent().getCoordinates());
+            lastListMember = getTileFromList(closedList, returnList[counter]);
+            counter++;
         }
         return returnList;
     }
