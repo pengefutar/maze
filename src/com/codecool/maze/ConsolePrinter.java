@@ -2,7 +2,7 @@ package com.codecool.maze;
 
 import java.util.Arrays;
 
-public class MazeConsolePrinter {
+public class ConsolePrinter {
 
     public static final String yellow = "\u001B[33m";
     public static final String blue = "\u001B[36m";
@@ -11,11 +11,11 @@ public class MazeConsolePrinter {
     public static void main(String[] args) {
         Maze mazeGenerator = new Maze(21, 31);
         PathFinder maze = mazeGenerator.generate();
-        MazeConsolePrinter.printWithoutSolution(maze);
-        MazeConsolePrinter.printWithSolution(maze);
+        ConsolePrinter.printWithoutSolution(maze);
+        ConsolePrinter.printWithSolution(maze);
     }
 
-    private static boolean isListContainingElement(int[][] list, int[] element) {
+    static boolean isListContainingElement(int[][] list, int[] element) {
         for (int i = 0; i < list.length; i++) {
             if (Arrays.equals(list[i], element)) {
                 return true;
@@ -26,13 +26,9 @@ public class MazeConsolePrinter {
 
     static void printWithoutSolution(PathFinder maze) {
         System.out.println();
-        for (int[] row : maze.getMaze()) {
+        for (int[] row : maze.getMazeMap()) {
             for (int cell : row) {
-                if (cell == 1) {
-                    System.out.print("x ");
-                } else if (cell == 0) {
-                    System.out.print("  ");
-                }
+                System.out.print(cell == 1 ? "x " : "  ");
             }
             System.out.println();
         }
@@ -44,11 +40,11 @@ public class MazeConsolePrinter {
         int[][] shortestPathCells = maze.getShortestPathCoordinates();
 
         System.out.println();
-        for (int row = 0; row < maze.getMaze().length; row++) {
-            for (int cell = 0; cell < maze.getMaze()[0].length; cell++) {
-                if (maze.getMaze()[row][cell] == 1) {
+        for (int row = 0; row < maze.getMazeMap().length; row++) {
+            for (int cell = 0; cell < maze.getMazeMap()[0].length; cell++) {
+                if (maze.getMazeMap()[row][cell] == 1) {
                     System.out.print(blue + "x " + reset);
-                } else if (maze.getMaze()[row][cell] == 0) {
+                } else if (maze.getMazeMap()[row][cell] == 0) {
                     if (isListContainingElement(shortestPathCells, new int[]{row, cell})) {
                         System.out.print(yellow + "o " + reset);
                     } else {
@@ -59,5 +55,6 @@ public class MazeConsolePrinter {
             System.out.println();
         }
         System.out.println();
+
     }
 }

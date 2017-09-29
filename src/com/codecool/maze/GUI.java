@@ -21,9 +21,9 @@ public class GUI extends Application {
     int width, height;
     int rows = 31;
     int cols = 41;
-    Maze mazeGenerator = new Maze(rows, cols);
-    PathFinder maze = mazeGenerator.generate();
-    GridPane mazeTable = new GridPane();
+    Maze maze = new Maze(rows, cols);
+    PathFinder pathFinder = maze.generate();
+    GridPane mazePane = new GridPane();
     String wallColor = "-fx-background-color: #1c1c1c;";
     String pathColor = "-fx-background-color: #cbcbcb;";
     String cheatColor = "-fx-background-color: #d169c5;";
@@ -43,74 +43,58 @@ public class GUI extends Application {
         return null;
     }
 
-    private void drawGates(Boolean containsCheat){
-        getNodeFromGridPane(mazeTable, maze.getStartTile().getCoordinates()[1]-1, 0).setStyle(wallColor);
-        getNodeFromGridPane(mazeTable, maze.getStartTile().getCoordinates()[1]+1, 0).setStyle(wallColor);
-        getNodeFromGridPane(mazeTable, maze.getStartTile().getCoordinates()[1]-1, 1).setStyle(wallColor);
-        getNodeFromGridPane(mazeTable, maze.getStartTile().getCoordinates()[1]+1, 1).setStyle(wallColor);
-        getNodeFromGridPane(mazeTable, maze.getGoalTile().getCoordinates()[1]+1, rows+2).setStyle(wallColor);
-        getNodeFromGridPane(mazeTable, maze.getGoalTile().getCoordinates()[1]-1, rows+2).setStyle(wallColor);
-        getNodeFromGridPane(mazeTable, maze.getGoalTile().getCoordinates()[1]+1, rows+3).setStyle(wallColor);
-        getNodeFromGridPane(mazeTable, maze.getGoalTile().getCoordinates()[1]-1, rows+3).setStyle(wallColor);
-        if(containsCheat){
-            getNodeFromGridPane(mazeTable, maze.getStartTile().getCoordinates()[1], 0).setStyle(cheatColor);
-            getNodeFromGridPane(mazeTable, maze.getStartTile().getCoordinates()[1], 1).setStyle(cheatColor);
-            getNodeFromGridPane(mazeTable, maze.getGoalTile().getCoordinates()[1], rows+2).setStyle(cheatColor);
-            getNodeFromGridPane(mazeTable, maze.getGoalTile().getCoordinates()[1], rows+3).setStyle(cheatColor);
-        }
-        else{
-            getNodeFromGridPane(mazeTable, maze.getStartTile().getCoordinates()[1], 0).setStyle(pathColor);
-            getNodeFromGridPane(mazeTable, maze.getStartTile().getCoordinates()[1], 1).setStyle(pathColor);
-            getNodeFromGridPane(mazeTable, maze.getGoalTile().getCoordinates()[1], rows+2).setStyle(pathColor);
-            getNodeFromGridPane(mazeTable, maze.getGoalTile().getCoordinates()[1], rows+3).setStyle(pathColor);
+    private void drawGates(Boolean containsCheat) {
+        getNodeFromGridPane(mazePane, pathFinder.getStartTile().getCoordinates()[1] - 1, 0).setStyle(wallColor);
+        getNodeFromGridPane(mazePane, pathFinder.getStartTile().getCoordinates()[1] + 1, 0).setStyle(wallColor);
+        getNodeFromGridPane(mazePane, pathFinder.getStartTile().getCoordinates()[1] - 1, 1).setStyle(wallColor);
+        getNodeFromGridPane(mazePane, pathFinder.getStartTile().getCoordinates()[1] + 1, 1).setStyle(wallColor);
+        getNodeFromGridPane(mazePane, pathFinder.getGoalTile().getCoordinates()[1] + 1, rows + 2).setStyle(wallColor);
+        getNodeFromGridPane(mazePane, pathFinder.getGoalTile().getCoordinates()[1] - 1, rows + 2).setStyle(wallColor);
+        getNodeFromGridPane(mazePane, pathFinder.getGoalTile().getCoordinates()[1] + 1, rows + 3).setStyle(wallColor);
+        getNodeFromGridPane(mazePane, pathFinder.getGoalTile().getCoordinates()[1] - 1, rows + 3).setStyle(wallColor);
+        if (containsCheat) {
+            getNodeFromGridPane(mazePane, pathFinder.getStartTile().getCoordinates()[1], 0).setStyle(cheatColor);
+            getNodeFromGridPane(mazePane, pathFinder.getStartTile().getCoordinates()[1], 1).setStyle(cheatColor);
+            getNodeFromGridPane(mazePane, pathFinder.getGoalTile().getCoordinates()[1], rows + 2).setStyle(cheatColor);
+            getNodeFromGridPane(mazePane, pathFinder.getGoalTile().getCoordinates()[1], rows + 3).setStyle(cheatColor);
+        } else {
+            getNodeFromGridPane(mazePane, pathFinder.getStartTile().getCoordinates()[1], 0).setStyle(pathColor);
+            getNodeFromGridPane(mazePane, pathFinder.getStartTile().getCoordinates()[1], 1).setStyle(pathColor);
+            getNodeFromGridPane(mazePane, pathFinder.getGoalTile().getCoordinates()[1], rows + 2).setStyle(pathColor);
+            getNodeFromGridPane(mazePane, pathFinder.getGoalTile().getCoordinates()[1], rows + 3).setStyle(pathColor);
         }
     }
 
-    private void drawMaze(Boolean containsCheat){
+    private void drawMaze(Boolean containsCheat) {
 
-        mazeTable.getChildren().clear();
+        mazePane.getChildren().clear();
 
-        double gridSize = ((width/4*3)/100*90)/cols;
-        for(int x = 0; x < rows+4; x++){
-            for(int y = 0; y < cols; y++){
+        double gridSize = ((width / 4 * 3) / 100 * 90) / cols;
+        for (int x = 0; x < rows + 4; x++) {
+            for (int y = 0; y < cols; y++) {
                 Pane pane = new Pane();
                 pane.setPrefWidth(gridSize);
                 pane.setPrefHeight(gridSize);
-                if(1<x & x<rows+2){
-                    if(containsCheat){
-                        if(maze.getMaze()[x-2][y] == 1){
-                            pane.setStyle(wallColor);
-                        }
-                        else if(maze.isCoordinatePartOfShortestPath(new int[]{x-2, y})){
-                            pane.setStyle(cheatColor);
-                        }
-                        else if(maze.getMaze()[x-2][y] == 0){
-                            pane.setStyle(pathColor);
-                        }
-                    }
-                    else{
-                        if(maze.getMaze()[x-2][y] == 1){
-                            pane.setStyle(wallColor);
-                        }
-                        else if(maze.getMaze()[x-2][y] == 0){
-                            pane.setStyle(pathColor);
-                        }
+                if (1 < x & x < rows + 2) {
+                    pane.setStyle(pathFinder.getMazeMap()[x - 2][y] == 1 ? wallColor : pathColor);
+                    if (containsCheat && pathFinder.isCoordinatePartOfShortestPath(new int[]{x - 2, y})) {
+                        pane.setStyle(cheatColor);
                     }
                 }
-                mazeTable.add(pane, y, x);
+                mazePane.add(pane, y, x);
             }
         }
         drawGates(containsCheat);
     }
 
-    private void exitPopup(Stage primaryStage){
+    private void exitPopup(Stage primaryStage) {
         Alert alert = new Alert(Alert.AlertType.CONFIRMATION);
         alert.initStyle(StageStyle.UTILITY);
         alert.setTitle("Confirm Exit");
         alert.setHeaderText("Are you sure you want to exit Maze Sprint?");
 
         Optional<ButtonType> result = alert.showAndWait();
-        if (result.get() == ButtonType.OK){
+        if (result.get() == ButtonType.OK) {
             alert.close();
             primaryStage.close();
         } else {
@@ -118,7 +102,7 @@ public class GUI extends Application {
         }
     }
 
-    private void optionsPopup(Stage primaryStage){
+    private void optionsPopup(Stage primaryStage) {
         Stage optionsStage = new Stage();
         VBox vBox = new VBox(20);
         Scene scene = new Scene(vBox);
@@ -147,8 +131,8 @@ public class GUI extends Application {
 //            });
     }
 
-    private void setRowsAndCols(){
-        switch(difficultyGroup.getSelectedToggle().toString()){
+    private void setRowsAndCols() {
+        switch (difficultyGroup.getSelectedToggle().toString()) {
             case "Easy":
                 rows = 21;
                 cols = 31;
@@ -175,19 +159,19 @@ public class GUI extends Application {
         GridPane game = new GridPane();
         game.setStyle("-fx-background-color: #7e7ec8;");
         game.setAlignment(Pos.CENTER);
-        game.setPrefSize(width/5*4, height);
-        game.getChildren().add(mazeTable);
+        game.setPrefSize(width / 5 * 4, height);
+        game.getChildren().add(mazePane);
 
         VBox buttons = new VBox(25);
         buttons.setAlignment(Pos.CENTER);
-        buttons.setPrefSize(width/5, height);
+        buttons.setPrefSize(width / 5, height);
         buttons.setStyle("-fx-background-color: #4d4d87;");
         Button generateNew = new Button("New Maze");
         generateNew.setOnAction(new EventHandler<ActionEvent>() {
             @Override
             public void handle(ActionEvent event) {
-                mazeGenerator = new Maze(rows, cols);
-                maze = mazeGenerator.generate();
+                maze = new Maze(rows, cols);
+                pathFinder = maze.generate();
                 drawMaze(true);
             }
         });
@@ -213,13 +197,13 @@ public class GUI extends Application {
         VBox title = new VBox();
         Label titleText = new Label("Maze Sprint");
         titleText.setEffect(ds);
-        title.setPrefSize(width/5, height/6);
-        title.setMaxSize(width/5, height/6);
+        title.setPrefSize(width / 5, height / 6);
+        title.setMaxSize(width / 5, height / 6);
         title.setAlignment(Pos.CENTER);
         title.getChildren().addAll(titleText);
 
         StackPane menu = new StackPane();
-        menu.setPrefSize(width/5, height);
+        menu.setPrefSize(width / 5, height);
         menu.getChildren().addAll(buttons, title);
         StackPane.setAlignment(title, Pos.TOP_LEFT);
 
